@@ -18,14 +18,32 @@ class task_ui
 		{
 
 			name.width=128;
-			due_day.width=22;
-			due_month.width=22;
-			due_year.width=32;
-			info.width=180;
+			name.text_color_disabled=msl::color(0,0,0,1);
+			name.outline_color_disabled=msl::color(1,1,1,1);
+			name.background_color_disabled=msl::color(1,1,1,1);
 
+			due_day.width=22;
 			due_day.max_length=2;
+			due_day.text_color_disabled=msl::color(0,0,0,1);
+			due_day.outline_color_disabled=msl::color(1,1,1,1);
+			due_day.background_color_disabled=msl::color(1,1,1,1);
+
+			due_month.width=22;
 			due_month.max_length=2;
+			due_month.text_color_disabled=msl::color(0,0,0,1);
+			due_month.outline_color_disabled=msl::color(1,1,1,1);
+			due_month.background_color_disabled=msl::color(1,1,1,1);
+
+			due_year.width=32;
 			due_year.max_length=4;
+			due_year.text_color_disabled=msl::color(0,0,0,1);
+			due_year.outline_color_disabled=msl::color(1,1,1,1);
+			due_year.background_color_disabled=msl::color(1,1,1,1);
+
+			info.width=180;
+			info.text_color_disabled=msl::color(0,0,0,1);
+			info.outline_color_disabled=msl::color(1,1,1,1);
+			info.background_color_disabled=msl::color(1,1,1,1);
 		}
 
 		void loop(const double dt)
@@ -117,7 +135,7 @@ task_ui test(0,0,t);
 
 int main()
 {
-	msl::start_2d("Drudgery");
+	msl::start_2d("Drudgery",640,480,false);
 	return 0;
 }
 
