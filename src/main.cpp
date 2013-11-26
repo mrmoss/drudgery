@@ -9,41 +9,58 @@
 class task_ui
 {
 	public:
-		task_ui(const double x,const double y,task& T):t(&T),x(x),y(y),width(320),height(240),
+		task_ui(const double x,const double y,task& T):t(&T),x(x),y(y),width(328),height(248),
 			due_day("",x,y),due_month("",x,y),due_year("",x,y),info("",x,y),name("",x,y),
-			time_estimate("",x,y),time_working("",x,y),modify(false,x,y)
+			time_estimate("",x,y),time_working("",x,y),modify(false,x,y),padding_(4)
 		{}
 
 		void setup()
 		{
 
-			name.width=128;
+			//Setup Name
+			name.width=320;
 			name.text_color_disabled=msl::color(0,0,0,1);
 			name.outline_color_disabled=msl::color(1,1,1,1);
 			name.background_color_disabled=msl::color(1,1,1,1);
 
+			//Setup Due Day
 			due_day.width=22;
 			due_day.max_length=2;
 			due_day.text_color_disabled=msl::color(0,0,0,1);
 			due_day.outline_color_disabled=msl::color(1,1,1,1);
 			due_day.background_color_disabled=msl::color(1,1,1,1);
 
+			//Setup Due Month
 			due_month.width=22;
 			due_month.max_length=2;
 			due_month.text_color_disabled=msl::color(0,0,0,1);
 			due_month.outline_color_disabled=msl::color(1,1,1,1);
 			due_month.background_color_disabled=msl::color(1,1,1,1);
 
+			//Setup Due Year
 			due_year.width=32;
 			due_year.max_length=4;
 			due_year.text_color_disabled=msl::color(0,0,0,1);
 			due_year.outline_color_disabled=msl::color(1,1,1,1);
 			due_year.background_color_disabled=msl::color(1,1,1,1);
 
-			info.width=180;
+			//Setup Info
+			info.width=320;
 			info.text_color_disabled=msl::color(0,0,0,1);
 			info.outline_color_disabled=msl::color(1,1,1,1);
 			info.background_color_disabled=msl::color(1,1,1,1);
+
+			//Setup Time Working
+			time_working.width=48;
+			time_working.text_color_disabled=msl::color(0,0,0,1);
+			time_working.outline_color_disabled=msl::color(1,1,1,1);
+			time_working.background_color_disabled=msl::color(1,1,1,1);
+
+			//Setup Time Estimate
+			time_estimate.width=48;
+			time_estimate.text_color_disabled=msl::color(0,0,0,1);
+			time_estimate.outline_color_disabled=msl::color(1,1,1,1);
+			time_estimate.background_color_disabled=msl::color(1,1,1,1);
 		}
 
 		void loop(const double dt)
@@ -61,26 +78,34 @@ class task_ui
 				time_working.value=msl::to_string(t->time_working);
 			}
 
-			double padding=4;
 
 			//Position Name
-			name.x=x-width/2.0+padding+name.display_width/2.0;
-			name.y=y+height/2.0-padding-name.display_height/2.0;
+			name.x=x-width/2.0+padding_+name.display_width/2.0;
+			name.y=y+height/2.0-padding_-name.display_height/2.0;
 
 			//Position Due Date Day
-			due_day.x=x-width/2.0+padding+due_day.display_width/2.0;
-			due_day.y=name.y-name.display_height/2.0-padding-due_day.display_height/2.0;
+			due_day.x=x-width/2.0+padding_+due_day.display_width/2.0;
+			due_day.y=name.y-name.display_height/2.0-padding_-due_day.display_height/2.0;
 
 			//Position Due Date Month
-			due_month.x=due_day.x+padding+(due_day.display_width+due_month.display_width)/2.0;
-			due_month.y=name.y-name.display_height/2.0-padding-due_month.display_height/2.0;
+			due_month.x=due_day.x+padding_+(due_day.display_width+due_month.display_width)/2.0;
+			due_month.y=due_day.y;
 
 			//Position Due Date Year
-			due_year.x=due_month.x+padding+(due_month.display_width+due_year.display_width)/2.0;
-			due_year.y=name.y-name.display_height/2.0-padding-due_year.display_height/2.0;
+			due_year.x=due_month.x+padding_+(due_month.display_width+due_year.display_width)/2.0;
+			due_year.y=due_day.y;
 
-			info.x=x-width/2.0+padding+info.display_width/2.0;
-			info.y=due_year.y-due_year.display_height/2.0-padding-info.display_height/2.0;
+			//Position Time Working
+			time_working.x=due_year.x+due_year.display_width/2.0+padding_*4+time_working.display_width/2.0;
+			time_working.y=due_day.y;
+
+			//Position Time Estimate
+			time_estimate.x=time_working.x+time_working.display_width/2.0+padding_+time_estimate.display_width/2.0;
+			time_estimate.y=due_day.y;
+
+			//Position Info
+			info.x=x-width/2.0+padding_+info.display_width/2.0;
+			info.y=due_year.y-due_year.display_height/2.0-padding_-info.display_height/2.0;
 
 			if(modify.value)
 			{
@@ -98,18 +123,22 @@ class task_ui
 			due_year.loop(dt);
 			info.loop(dt);
 			name.loop(dt);
+			time_estimate.loop(dt);
+			time_working.loop(dt);
 			modify.loop(dt);
 		}
 
 		void draw()
 		{
-			msl::draw_rectangle(x,y,width,height,true);
+			msl::draw_rectangle(x,y,width+padding_*2,height+padding_*2,true);
 
 			due_day.draw();
 			due_month.draw();
 			due_year.draw();
 			info.draw();
 			name.draw();
+			time_estimate.draw();
+			time_working.draw();
 			modify.draw();
 		}
 
@@ -127,6 +156,9 @@ class task_ui
 		msl::textbox time_estimate;
 		msl::textbox time_working;
 		msl::checkbox modify;
+
+	private:
+		double padding_;
 };
 
 task t(date(12,1,1945),"This is my task description.","Task title",12,95);
