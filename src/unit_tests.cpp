@@ -7,6 +7,9 @@
 //Task Header
 #include "task.hpp"
 
+//Task List Header
+#include "task_list.hpp"
+
 //Main
 int main()
 {
@@ -45,27 +48,65 @@ int main()
 	std::cout<<"\ttask tests"<<std::endl;
 
 	//Create a Task
-	task add_task_test(date(1,1,1970),"Blah blah blarg.","Task A",54,23);
+	task t0(date(1,1,1970),"Blah blah blarg.","Task A",54,23);
 
 	//Test Output
 	std::cout<<"\t\tadd task test\t";
 
 	//Test Case
-	if(add_task_test.name=="Task A"&&add_task_test.info=="Blah blah blarg."&&add_task_test.time_estimate==54&&add_task_test.time_working==23)
+	if(t0.name=="Task A"&&t0.info=="Blah blah blarg."&&t0.time_estimate==54&&t0.time_working==23)
 		std::cout<<":)"<<std::endl;
 	else
 		std::cout<<":("<<std::endl;
 
 	//Add Some Minutes
-	++add_task_test.time_working;
-	++add_task_test.time_working;
-	++add_task_test.time_working;
+	++t0.time_working;
+	++t0.time_working;
+	++t0.time_working;
 
 	//Test Output
 	std::cout<<"\t\tadd minute test\t";
 
 	//Test Case
-	if(add_task_test.time_working==26)
+	if(t0.time_working==26)
+		std::cout<<":)"<<std::endl;
+	else
+		std::cout<<":("<<std::endl;
+
+	//Create Task List
+	task_list l0;
+
+	//Add Some Tasks
+	task t1(date(2,3,1945),"info1","name1",12,12);
+	l0.add(t0);
+	l0.add(t1);
+
+	//Test Output
+	std::cout<<"\t\tsave task list\t";
+
+	//Test Case
+	if(l0.save("test.bak"))
+		std::cout<<":)"<<std::endl;
+	else
+		std::cout<<":("<<std::endl;
+
+	//Create Another Task List
+	task_list l1;
+
+	//Test Output
+	std::cout<<"\t\tload task list\t";
+
+	//Test Case
+	if(l1.load("test.bak"))
+		std::cout<<":)"<<std::endl;
+	else
+		std::cout<<":("<<std::endl;
+
+	//Test Output
+	std::cout<<"\t\ttest for match\t";
+
+	//Test Case
+	if(l0==l1)
 		std::cout<<":)"<<std::endl;
 	else
 		std::cout<<":("<<std::endl;
