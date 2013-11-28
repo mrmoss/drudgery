@@ -38,7 +38,7 @@ class task_ui
 			due_month.background_color_disabled=msl::color(1,1,1,1);
 
 			//Setup Due Year
-			due_year.width=32;
+			due_year.width=40;
 			due_year.max_length=4;
 			due_year.text_color_disabled=msl::color(0,0,0,1);
 			due_year.outline_color_disabled=msl::color(1,1,1,1);
@@ -65,59 +65,82 @@ class task_ui
 
 		void loop(const double dt)
 		{
-			due_day.disabled=due_month.disabled=due_year.disabled=info.disabled=name.disabled=time_estimate.disabled=time_working.disabled=!modify.value;
-
 			if(!modify.value)
 			{
 				due_day.value=msl::to_string(t->due_date.day);
-				due_month.value=msl::to_string(t->due_date.month);
-				due_year.value=msl::to_string(t->due_date.year);
-				info.value=t->info;
-				name.value=t->name;
-				time_estimate.value=msl::to_string(t->time_estimate);
-				time_working.value=msl::to_string(t->time_working);
-			}
+				due_day.disabled=true;
 
+				due_month.value=msl::to_string(t->due_date.month);
+				due_month.disabled=true;
+
+				due_year.value=msl::to_string(t->due_date.year);
+				due_year.disabled=true;
+
+				info.value=t->info;
+				info.disabled=true;
+
+				name.value=t->name;
+				name.disabled=true;
+
+				time_estimate.value=msl::to_string(t->time_estimate);
+				time_estimate.disabled=true;
+
+				time_working.value=msl::to_string(t->time_working);
+				time_working.disabled=true;
+			}
+			else
+			{
+				t->due_date.day=msl::to_int(due_day.value);
+				due_day.disabled=false;
+
+				t->due_date.month=msl::to_int(due_month.value);
+				due_month.disabled=false;
+
+				t->due_date.year=msl::to_int(due_year.value);
+				due_year.disabled=false;
+
+				t->info=info.value;
+				info.disabled=false;
+
+				t->name=name.value;
+				name.disabled=false;
+
+				t->time_estimate=msl::to_int(time_estimate.value);
+				time_estimate.disabled=false;
+
+				t->time_working=msl::to_int(time_working.value);
+				time_working.disabled=false;
+			}
 
 			//Position Name
 			name.x=x-width/2.0+padding_+name.display_width/2.0;
 			name.y=y+height/2.0-padding_-name.display_height/2.0;
 
-			//Position Due Date Day
-			due_day.x=x-width/2.0+padding_+due_day.display_width/2.0;
-			due_day.y=name.y-name.display_height/2.0-padding_-due_day.display_height/2.0;
-
 			//Position Due Date Month
-			due_month.x=due_day.x+padding_+(due_day.display_width+due_month.display_width)/2.0;
-			due_month.y=due_day.y;
+			due_month.x=x-width/2.0+padding_+due_month.display_width/2.0;
+			due_month.y=name.y-name.display_height/2.0-padding_-due_month.display_height/2.0;
+
+			//Position Due Date Day
+			due_day.x=due_month.x+padding_+(due_month.display_width+due_day.display_width)/2.0;
+			due_day.y=due_month.y;
 
 			//Position Due Date Year
-			due_year.x=due_month.x+padding_+(due_month.display_width+due_year.display_width)/2.0;
-			due_year.y=due_day.y;
+			due_year.x=due_day.x+padding_+(due_day.display_width+due_year.display_width)/2.0;
+			due_year.y=due_month.y;
 
 			//Position Time Working
 			time_working.x=due_year.x+due_year.display_width/2.0+padding_*4+time_working.display_width/2.0;
-			time_working.y=due_day.y;
+			time_working.y=due_month.y;
 
 			//Position Time Estimate
 			time_estimate.x=time_working.x+time_working.display_width/2.0+padding_+time_estimate.display_width/2.0;
-			time_estimate.y=due_day.y;
+			time_estimate.y=due_month.y;
 
 			//Position Info
 			info.x=x-width/2.0+padding_+info.display_width/2.0;
 			info.y=due_year.y-due_year.display_height/2.0-padding_-info.display_height/2.0;
 
-			if(modify.value)
-			{
-				t->due_date.day=msl::to_int(due_day.value);
-				t->due_date.month=msl::to_int(due_month.value);
-				t->due_date.year=msl::to_int(due_year.value);
-				t->info=info.value;
-				t->name=name.value;
-				t->time_estimate=msl::to_int(time_estimate.value);
-				t->time_working=msl::to_int(time_working.value);
-			}
-
+			//Loop
 			due_day.loop(dt);
 			due_month.loop(dt);
 			due_year.loop(dt);
@@ -126,6 +149,45 @@ class task_ui
 			time_estimate.loop(dt);
 			time_working.loop(dt);
 			modify.loop(dt);
+
+			//Restrict Number Entries to Numbers
+
+			if((modify.value&&due_day.value.size()>1)||!modify.value)
+			{
+				due_day.value=msl::to_string(msl::to_int(due_day.value));
+
+				if(msl::to_int(due_day.value)<1)
+					due_day.value=msl::to_string(1);
+
+				if(msl::to_int(due_day.value)>31)
+					due_day.value=msl::to_string(31);
+			}
+
+			if((modify.value&&due_month.value.size()>1)||!modify.value)
+			{
+				due_month.value=msl::to_string(msl::to_int(due_month.value));
+
+				if(msl::to_int(due_month.value)<1)
+					due_month.value=msl::to_string(1);
+
+				if(msl::to_int(due_month.value)>12)
+					due_month.value=msl::to_string(12);
+			}
+
+			if((modify.value&&due_year.value.size()>3)||!modify.value)
+			{
+				due_year.value=msl::to_string(msl::to_int(due_year.value));
+
+				if(msl::to_int(due_year.value)<1970)
+					due_year.value=msl::to_string(1970);
+			}
+
+			if((modify.value&&time_estimate.value.size()>0)||!modify.value)
+				time_estimate.value=msl::to_string(msl::to_int(time_estimate.value));
+
+			if((modify.value&&time_working.value.size()>0)||!modify.value)
+				time_working.value=msl::to_string(msl::to_int(time_working.value));
+
 		}
 
 		void draw()
