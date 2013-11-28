@@ -1,0 +1,3 @@
+[submodule "msl"]
+	path = src/msl
+	url = https://github.com/mrmoss/msl.git
