@@ -16,6 +16,8 @@ class task_ui
 
 		void setup()
 		{
+			msl::set_text_font("UbuntuMono-R.ttf");
+			msl::set_text_size(12);
 
 			//Setup Name
 			name.width=320;
