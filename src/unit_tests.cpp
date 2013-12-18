@@ -10,6 +10,9 @@
 //Task List Header
 #include "task_list.hpp"
 
+//Time Utility Header
+#include "msl/time_util.hpp"
+
 //Main
 int main()
 {
@@ -110,6 +113,28 @@ int main()
 		std::cout<<":)"<<std::endl;
 	else
 		std::cout<<":("<<std::endl;
+
+	//Load/Save 10000 Tasks
+	long time_start=msl::millis();
+	task_list l2;
+	for(unsigned int ii=0;ii<10000;++ii)
+		l2.add(task(date(2,3,1945),"info1","name1",12,12));
+	bool passed_10000=l2.save("1000.bak");
+	task_list l3;
+	passed_10000=passed_10000&&l3.load("1000.bak");
+	passed_10000=passed_10000&&(l2==l3);
+	long time_end=msl::millis();
+
+	//Test Output
+	std::cout<<"\t\tttest list of 10000 tasks\t";
+
+	if(passed_10000)
+		std::cout<<":)\t";
+	else
+		std::cout<<":(\t";
+
+	std::cout<<"\n\t\t\tcompleted in:  "<<time_end-time_start<<" ms"<<std::endl;
+
 
 	//Return Gracefully
 	return 0;

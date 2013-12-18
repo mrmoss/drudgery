@@ -16,6 +16,8 @@ class task_ui
 
 		double x;
 		double y;
+		double display_width;
+		double display_height;
 
 		msl::textbox name;
 		msl::textbox info;

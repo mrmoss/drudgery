@@ -2,7 +2,7 @@
 
 #include "msl/string_util.hpp"
 
-task_ui::task_ui(const double x,const double y):x(x),y(y),modify(false,x,y),padding_(4)
+task_ui::task_ui(const double x,const double y):x(x),y(y),display_width(0),display_height(0),modify(false,x,y),padding_(4)
 {
 	//Setup Name
 	name.width=320-padding_*2;
@@ -176,6 +176,9 @@ void task_ui::loop(const double dt,task& my_task)
 
 	//Loop GUI
 	v0.loop(dt);
+
+	display_width=v0.display_width;
+	display_height=v0.display_height;
 
 	//Restrict Number Entries to Numbers
 	if((modify.value&&due_day.value.size()>1)||!modify.value)
