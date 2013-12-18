@@ -21,7 +21,7 @@ void task::loop()
 {
 	if(working_on)
 	{
-		if(msl::millis()>=old_time_+60000)
+		if(msl::millis()>=old_time_+1000)
 		{
 			++time_working;
 			old_time_=msl::millis();

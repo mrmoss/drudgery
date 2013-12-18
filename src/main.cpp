@@ -26,6 +26,9 @@ class menu_bar
 			v0.loop(dt);
 			display_width=v0.display_width;
 			display_height=v0.display_height;
+
+			if(escape.pressed)
+				exit(0);
 		}
 
 		void draw()
@@ -48,60 +51,33 @@ class task_list_ui
 {
 	public:
 		task_list_ui(const double x=0,const double y=0):x(x),y(y),display_width(0),display_height(0)
-		{}
-
-		void cleanup()
 		{
-			for(unsigned int ii=0;ii<ui_list.size();++ii)
-				delete ui_list[ii];
-
-			ui_list.clear();
+			list_ui.width=480;
 		}
 
 		void loop(const double dt)
 		{
 			list.loop();
 
-			while(ui_list.size()<list.size())
-				ui_list.push_back(new task_ui(0,0));
+			list_ui.y=y-list_ui.display_height/2.0;
+			display_width=list_ui.display_width;
+			display_height=list_ui.display_height;
 
-			while(ui_list.size()>list.size()&&ui_list.size()>0)
-			{
-				delete ui_list[ui_list.size()-1];
-				ui_list.pop_back();
-			}
-
-			display_width=0;
-			display_height=0;
-			double draw_y=y;
-
-			if(list.size()>0)
-			{
-				display_width=ui_list[0]->display_width;
-				display_height=ui_list[0]->display_height*list.size();
-				draw_y-=ui_list[0]->display_height/2.0;
-			}
+			std::vector<std::string> temp;
 
 			for(unsigned int ii=0;ii<list.size();++ii)
-			{
-				ui_list[ii]->x=x;
-				ui_list[ii]->y=draw_y-(ii*ui_list[0]->display_height);
-				ui_list[ii]->loop(dt,list[ii]);
-			}
+				temp.push_back(list[ii].name);
+
+			list_ui.options=temp;
+			list_ui.loop(dt);
+
+			if(list_ui.value>=list.size())
+				list_ui.value=-1;
 		}
 
 		void draw()
 		{
-			for(unsigned int ii=0;ii<ui_list.size();++ii)
-				ui_list[ii]->draw();
-
-			if(list.size()==0)
-			{
-				std::string text_string="You have no tasks";
-				double text_width=msl::text_width(text_string);
-				double text_height=msl::text_height(text_string);
-				msl::draw_text(x-text_width/2.0,y-text_height,text_string,msl::color(0,0,0,1));
-			}
+			list_ui.draw();
 		}
 
 		double x;
@@ -110,13 +86,13 @@ class task_list_ui
 		double display_height;
 
 		task_list list;
-		std::vector<task_ui*> ui_list;
+		msl::list list_ui;
 };
 
 menu_bar menu(0,0);
 task_list_ui tasks(0,0);
 
-msl::list test;
+task_ui task_viewer(0,0);
 
 int main()
 {
@@ -129,41 +105,44 @@ void setup()
 	msl::set_text_font("Ubuntu-B.ttf");
 	msl::set_text_size(12);
 
-	tasks.list.add(task(date(12,1,1980),"This is my task description.","Task title",12,95));
-	tasks.list.add(task(date(11,23,2001),"This is my task description2.","Task title2",13,10));
-
+	tasks.list.add(task(date(18,12,2013),"I need to add tasks to Drudgery.","My First Task",0,0));
 }
 
 void loop(const double dt)
 {
-	/*menu.y=msl::window_height/2.0;
+	menu.y=msl::window_height/2.0;
 	tasks.y=msl::window_height/2.0-menu.display_height;
+	task_viewer.y=msl::window_height/2.0-menu.display_height-tasks.display_height-task_viewer.display_height/2.0;
 
-	menu.loop(dt);*/
+	menu.loop(dt);
 
-	if(msl::input_check_pressed(kb_escape))
-		exit(0);
-
-	if(msl::input_check_pressed(kb_f2))
-		tasks.list.add(task(date(12,1,1980),"This is my task description.","Task title",12,95));
+	if(menu.add_task.pressed)
+		tasks.list.add(task(date(18,12,2013),"","New Task",0,0));
 
 	if(msl::input_check_pressed(kb_f1)&& tasks.list.size()>0)
 		tasks.list.remove(tasks.list.size()-1);
 
 	tasks.loop(dt);
 
-	std::vector<std::string> temp;
+	tasks.list_ui.disabled=task_viewer.modify.value;
 
-	for(unsigned int ii=0;ii<tasks.list.size();++ii)
-		temp.push_back(tasks.list[ii].name);
-
-	test.options=temp;
-	test.loop(dt);
+	if((int)tasks.list_ui.value>=0)
+		task_viewer.loop(dt,tasks.list[tasks.list_ui.value]);
 }
 
 void draw()
 {
-	//menu.draw();
-	//tasks.draw();
-	test.draw();
+	menu.draw();
+
+	unsigned int old_index=tasks.list_ui.value;
+	tasks.draw();
+	unsigned int new_index=tasks.list_ui.value;
+
+	if((int)tasks.list_ui.value>=0)
+	{
+		if(old_index!=new_index&&(int)old_index>=0)
+			task_viewer.working_on.value=tasks.list[tasks.list_ui.value].working_on;
+
+		task_viewer.draw();
+	}
 }
