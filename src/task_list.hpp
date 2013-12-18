@@ -16,6 +16,10 @@ class task_list
 		task& operator[](const unsigned int index);
 		const task operator[](const unsigned int index) const;
 
+		void insert(const task& item,const unsigned int index);
+
+		void loop();
+
 		bool save(const std::string& filename) const;
 		bool load(const std::string& filename);
 

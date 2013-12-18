@@ -14,11 +14,17 @@ class task
 		bool operator==(const task& rhs) const;
 		bool operator!=(const task& rhs) const;
 
+		void loop();
+
 		date due_date;
 		std::string info;
 		std::string name;
 		unsigned int time_estimate;
 		unsigned int time_working;
+		bool working_on;
+
+	private:
+		long old_time_;
 };
 
 #endif

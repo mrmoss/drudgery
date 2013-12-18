@@ -30,6 +30,17 @@ const task task_list::operator[](const unsigned int index) const
 	return list_[index];
 }
 
+void task_list::insert(const task& item,const unsigned int index)
+{
+	list_.insert(list_.begin()+index,item);
+}
+
+void task_list::loop()
+{
+	for(unsigned int ii=0;ii<list_.size();++ii)
+		list_[ii].loop();
+}
+
 bool task_list::save(const std::string& filename) const
 {
 	msl::json save_json;
