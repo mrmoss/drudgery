@@ -1,0 +1,1 @@
+make drudgery && cd bin && ./drudgery && cd ..

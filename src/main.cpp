@@ -116,6 +116,8 @@ class task_list_ui
 menu_bar menu(0,0);
 task_list_ui tasks(0,0);
 
+msl::list test;
+
 int main()
 {
 	msl::start_2d("Drudgery",640,480,false);
@@ -129,14 +131,15 @@ void setup()
 
 	tasks.list.add(task(date(12,1,1980),"This is my task description.","Task title",12,95));
 	tasks.list.add(task(date(11,23,2001),"This is my task description2.","Task title2",13,10));
+
 }
 
 void loop(const double dt)
 {
-	menu.y=msl::window_height/2.0;
+	/*menu.y=msl::window_height/2.0;
 	tasks.y=msl::window_height/2.0-menu.display_height;
 
-	menu.loop(dt);
+	menu.loop(dt);*/
 
 	if(msl::input_check_pressed(kb_escape))
 		exit(0);
@@ -148,10 +151,19 @@ void loop(const double dt)
 		tasks.list.remove(tasks.list.size()-1);
 
 	tasks.loop(dt);
+
+	std::vector<std::string> temp;
+
+	for(unsigned int ii=0;ii<tasks.list.size();++ii)
+		temp.push_back(tasks.list[ii].name);
+
+	test.options=temp;
+	test.loop(dt);
 }
 
 void draw()
 {
-	menu.draw();
-	tasks.draw();
+	//menu.draw();
+	//tasks.draw();
+	test.draw();
 }
