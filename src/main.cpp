@@ -108,7 +108,7 @@ class menu_bar
 			display_width=v0.display_width;
 			display_height=v0.display_height;
 
-			if(active_list_view.pressed)
+			if(active_list_view.pressed&&!task_viewer.modify.value)
 			{
 				active.visible=true;
 				archive.visible=false;

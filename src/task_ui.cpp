@@ -8,47 +8,47 @@ task_ui::task_ui(const double x,const double y):x(x),y(y),display_width(0),displ
 	//Setup Name
 	name.width=320-padding_*2;
 	name.text_color_disabled=msl::color(0,0,0,1);
-	name.outline_color_disabled=msl::color(1,1,1,1);
-	name.background_color_disabled=msl::color(1,1,1,1);
+	//name.outline_color_disabled=msl::color(1,1,1,1);
+	//name.background_color_disabled=msl::color(1,1,1,1);
 
 	//Setup Info
 	info.width=320-padding_*2;
 	info.text_color_disabled=msl::color(0,0,0,1);
-	info.outline_color_disabled=msl::color(1,1,1,1);
-	info.background_color_disabled=msl::color(1,1,1,1);
+	//info.outline_color_disabled=msl::color(1,1,1,1);
+	//info.background_color_disabled=msl::color(1,1,1,1);
 
 	//Setup Due Day
 	due_day.width=32-padding_*2;
 	due_day.max_length=2;
 	due_day.text_color_disabled=msl::color(0,0,0,1);
-	due_day.outline_color_disabled=msl::color(1,1,1,1);
-	due_day.background_color_disabled=msl::color(1,1,1,1);
+	//due_day.outline_color_disabled=msl::color(1,1,1,1);
+	//due_day.background_color_disabled=msl::color(1,1,1,1);
 
 	//Setup Due Month
 	due_month.width=32-padding_*2;
 	due_month.max_length=2;
 	due_month.text_color_disabled=msl::color(0,0,0,1);
-	due_month.outline_color_disabled=msl::color(1,1,1,1);
-	due_month.background_color_disabled=msl::color(1,1,1,1);
+	//due_month.outline_color_disabled=msl::color(1,1,1,1);
+	//due_month.background_color_disabled=msl::color(1,1,1,1);
 
 	//Setup Due Year
 	due_year.width=44-padding_*2;
 	due_year.max_length=4;
 	due_year.text_color_disabled=msl::color(0,0,0,1);
-	due_year.outline_color_disabled=msl::color(1,1,1,1);
-	due_year.background_color_disabled=msl::color(1,1,1,1);
+	//due_year.outline_color_disabled=msl::color(1,1,1,1);
+	//due_year.background_color_disabled=msl::color(1,1,1,1);
 
 	//Setup Time Working
 	time_working.width=40-padding_*2;
 	time_working.text_color_disabled=msl::color(0,0,0,1);
-	time_working.outline_color_disabled=msl::color(1,1,1,1);
-	time_working.background_color_disabled=msl::color(1,1,1,1);
+	//time_working.outline_color_disabled=msl::color(1,1,1,1);
+	//time_working.background_color_disabled=msl::color(1,1,1,1);
 
 	//Setup Time Estimate
 	time_estimate.width=40-padding_*2;
 	time_estimate.text_color_disabled=msl::color(0,0,0,1);
-	time_estimate.outline_color_disabled=msl::color(1,1,1,1);
-	time_estimate.background_color_disabled=msl::color(1,1,1,1);
+	//time_estimate.outline_color_disabled=msl::color(1,1,1,1);
+	//time_estimate.background_color_disabled=msl::color(1,1,1,1);
 
 	//Setup Captions
 	name_caption.disabled=true;
@@ -80,7 +80,7 @@ task_ui::task_ui(const double x,const double y):x(x),y(y),display_width(0),displ
 	modify_caption.disabled=true;
 	modify_caption.outline_color_disabled.a=modify_caption.background_color_to.a=0;
 	modify_caption.text_color_disabled=msl::color(0,0,0,1);
-	modify_caption.value="Modify";
+	modify_caption.value="   Modify";
 
 	//Setup First Row
 	h0.widgets.push_back(&name_caption);
@@ -136,48 +136,48 @@ void task_ui::loop(const double dt,task& my_task)
 	if(!modify.value)
 	{
 		due_day.value=msl::to_string(my_task.due_date.day);
-		due_day.disabled=true;
+		due_day.readonly=true;
 
 		due_month.value=msl::to_string(my_task.due_date.month);
-		due_month.disabled=true;
+		due_month.readonly=true;
 
 		due_year.value=msl::to_string(my_task.due_date.year);
-		due_year.disabled=true;
+		due_year.readonly=true;
 
 		info.value=my_task.info;
-		info.disabled=true;
+		info.readonly=true;
 
 		name.value=my_task.name;
-		name.disabled=true;
+		name.readonly=true;
 
 		time_estimate.value=msl::to_string(my_task.time_estimate);
-		time_estimate.disabled=true;
+		time_estimate.readonly=true;
 
 		time_working.value=msl::to_string(my_task.time_working);
-		time_working.disabled=true;
+		time_working.readonly=true;
 	}
 	else if(!disabled)
 	{
 		my_task.due_date.day=msl::to_int(due_day.value);
-		due_day.disabled=false;
+		due_day.readonly=false;
 
 		my_task.due_date.month=msl::to_int(due_month.value);
-		due_month.disabled=false;
+		due_month.readonly=false;
 
 		my_task.due_date.year=msl::to_int(due_year.value);
-		due_year.disabled=false;
+		due_year.readonly=false;
 
 		my_task.info=info.value;
-		info.disabled=false;
+		info.readonly=false;
 
 		my_task.name=name.value;
-		name.disabled=false;
+		name.readonly=false;
 
 		my_task.time_estimate=msl::to_int(time_estimate.value);
-		time_estimate.disabled=false;
+		time_estimate.readonly=false;
 
 		my_task.time_working=msl::to_int(time_working.value);
-		time_working.disabled=false;
+		time_working.readonly=false;
 	}
 	else
 	{
