@@ -64,17 +64,18 @@ class menu_bar
 {
 	public:
 		menu_bar(const double x=0,const double y=0):x(x),y(y),display_width(0),display_height(0),
-			escape("Exit"),active_list_view("Active List"),archive_list_view("Archive List")
+			escape("Exit"),active_list_view("Active List"),archive_list_view("Archive List"),move_top("Move to Top")
 		{
-			escape.padding=add_task.padding=archive_task.padding=active_list_view.padding=archive_list_view.padding=10;
+			escape.padding=add_task.padding=archive_task.padding=active_list_view.padding=archive_list_view.padding=move_top.padding=10;
 
-			add_task.width=archive_task.width=active_list_view.width=archive_list_view.width=96;
+			add_task.width=archive_task.width=active_list_view.width=archive_list_view.width=move_top.width=96;
 
 			h0.widgets.push_back(&escape);
 			h0.widgets.push_back(&add_task);
 			h0.widgets.push_back(&archive_task);
 			h0.widgets.push_back(&active_list_view);
 			h0.widgets.push_back(&archive_list_view);
+			h0.widgets.push_back(&move_top);
 			h0.background_color_to.a=h0.background_color_from.a=h0.outline_color.a=0;
 
 			v0.widgets.push_back(&h0);
@@ -88,6 +89,8 @@ class menu_bar
 
 		void loop(const double dt,task_list_ui& active,task_list_ui& archive,task_ui& task_viewer)
 		{
+			move_top.disabled=true;
+
 			bool save_active=false;
 			bool save_archive=false;
 
@@ -102,6 +105,9 @@ class menu_bar
 				save_archive=true;
 				archive.needs_saving=false;
 			}
+
+			if(active.visible&&(int)active.list_ui.value>0&&!task_viewer.modify.value)
+				move_top.disabled=false;
 
 			v0.y=y-v0.display_height/2.0;
 			v0.loop(dt);
@@ -191,6 +197,17 @@ class menu_bar
 
 					save_active=true;
 				}
+
+				if(move_top.pressed)
+				{
+					task temp=active.list[active.list_ui.value];
+					active.list.remove(active.list_ui.value);
+
+					active.list.insert(temp,0);
+					active.list_ui.value=0;
+					task_viewer.working_on.value=active.list[0].working_on;
+					save_active=true;
+				}
 			}
 			else if(archive.visible)
 			{
@@ -250,6 +267,7 @@ class menu_bar
 		msl::button archive_task;
 		msl::button active_list_view;
 		msl::button archive_list_view;
+		msl::button move_top;
 		msl::hdock h0;
 		msl::vdock v0;
 };
