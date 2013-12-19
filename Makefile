@@ -16,7 +16,7 @@ unit_tests: $(SRCS_UT)
 	$(COMPILER) $(CFLAGS) $(SRCS_UT) $(LIBS_UT) $(OPTS) -o $(OUT)/$@
 
 drudgery: $(SRCS_DY)
-	$(COMPILER) $(CFLAGS) $(SRCS_DY) $(LIBS_DY) $(OPTS) -o $(OUT)/$@ -ggdb
+	$(COMPILER) $(CFLAGS) $(SRCS_DY) $(LIBS_DY) $(OPTS) -o $(OUT)/$@
 
 clean:
 	rm -rf $(OUT)/$@

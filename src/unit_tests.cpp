@@ -126,7 +126,7 @@ int main()
 	long time_end=msl::millis();
 
 	//Test Output
-	std::cout<<"\t\tttest list of 10000 tasks\t";
+	std::cout<<"\t\ttest list of 10000 tasks\t";
 
 	if(passed_10000)
 		std::cout<<":)\t";
