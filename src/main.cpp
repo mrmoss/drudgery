@@ -9,14 +9,20 @@
 class task_list_ui
 {
 	public:
-		task_list_ui(const double x=0,const double y=0):x(x),y(y),display_width(0),display_height(0),visible(true)
+		task_list_ui(const double x=0,const double y=0):x(x),y(y),display_width(0),display_height(0),
+			visible(true),needs_saving(false)
 		{
 			list_ui.width=480;
 		}
 
 		void loop(const double dt)
 		{
+			task_list temp(list);
+
 			list.loop();
+
+			if(list!=temp)
+				needs_saving=true;
 
 			if(visible)
 			{
@@ -48,6 +54,7 @@ class task_list_ui
 		double display_width;
 		double display_height;
 		bool visible;
+		bool needs_saving;
 
 		task_list list;
 		msl::list list_ui;
@@ -57,11 +64,11 @@ class menu_bar
 {
 	public:
 		menu_bar(const double x=0,const double y=0):x(x),y(y),display_width(0),display_height(0),
-			escape("Exit"),add_task("Add Task"),active_list_view("Active List"),archive_list_view("Archive List")
+			escape("Exit"),active_list_view("Active List"),archive_list_view("Archive List")
 		{
 			escape.padding=add_task.padding=archive_task.padding=active_list_view.padding=archive_list_view.padding=10;
 
-			archive_task.width=active_list_view.width=archive_list_view.width=96;
+			add_task.width=archive_task.width=active_list_view.width=archive_list_view.width=96;
 
 			h0.widgets.push_back(&escape);
 			h0.widgets.push_back(&add_task);
@@ -73,9 +80,28 @@ class menu_bar
 			v0.widgets.push_back(&h0);
 		}
 
+		void setup(task_list_ui& active,task_list_ui& archive)
+		{
+			active.list.load("active.bak");
+			archive.list.load("archive.bak");
+		}
+
 		void loop(const double dt,task_list_ui& active,task_list_ui& archive,task_ui& task_viewer)
 		{
-			//bool save=false;
+			bool save_active=false;
+			bool save_archive=false;
+
+			if(active.needs_saving)
+			{
+				save_active=true;
+				active.needs_saving=false;
+			}
+
+			if(archive.needs_saving)
+			{
+				save_archive=true;
+				archive.needs_saving=false;
+			}
 
 			v0.y=y-v0.display_height/2.0;
 			v0.loop(dt);
@@ -118,9 +144,19 @@ class menu_bar
 					archive_task.disabled=true;
 
 				add_task.disabled=false;
+				add_task.value="Create Task";
 				archive_task.value="Archive Task";
 
-				if(add_task.pressed&&active.visible)
+				if(task_viewer.modify.value)
+				{
+					add_task.disabled=true;
+					archive_task.disabled=true;
+				}
+
+				if(task_viewer.modify.pressed)
+					save_active=true;
+
+				if(add_task.pressed)
 				{
 					task new_task(date(18,12,2013),"","New Task",0,0);
 
@@ -133,29 +169,70 @@ class menu_bar
 					{
 						active.list.add(new_task);
 					}
+
+					save_active=true;
 				}
 
 				if(archive_task.pressed&&(int)active.list_ui.value>=0)
 				{
 					if(active.list[active.list_ui.value].time_working>0)
+					{
 						archive.list.add(active.list[active.list_ui.value]);
 
+						save_archive=true;
+					}
+
 					active.list.remove(active.list_ui.value);
+
+					if(active.list_ui.value>=active.list.size())
+						task_viewer.working_on.value=false;
+					else
+						task_viewer.working_on.value=active.list[active.list_ui.value].working_on;
+
+					save_active=true;
 				}
 			}
 			else if(archive.visible)
 			{
 				if((int)archive.list_ui.value>=0)
+				{
+					add_task.disabled=false;
 					archive_task.disabled=false;
+				}
 				else
+				{
+					add_task.disabled=true;
 					archive_task.disabled=true;
+				}
 
-				add_task.disabled=true;
+				add_task.value="Restore Task";
 				archive_task.value="Delete Task";
 
+				if(add_task.pressed)
+				{
+					if((int)archive.list_ui.value>=0)
+					{
+						active.list.insert(archive.list[archive.list_ui.value],0);
+						archive.list.remove(archive.list_ui.value);
+
+						save_active=true;
+						save_archive=true;
+					}
+				}
+
 				if(archive_task.pressed&&(int)archive.list_ui.value>=0)
+				{
 					archive.list.remove(archive.list_ui.value);
+
+					save_archive=true;
+				}
 			}
+
+			if(save_active)
+				active.list.save("active.bak");
+
+			if(save_archive)
+				archive.list.save("archive.bak");
 		}
 
 		void draw()
@@ -194,7 +271,11 @@ void setup()
 	msl::set_text_font("Ubuntu-B.ttf");
 	msl::set_text_size(12);
 
-	active.list.add(task(date(18,12,2013),"I need to add tasks to Drudgery.","My First Task",0,0));
+	menu.setup(active,archive);
+
+	if(active.list.size()==0)
+		active.list.add(task(date(18,12,2013),"I need to add tasks to Drudgery.","My First Task",0,0));
+
 	archive.visible=false;
 	active.visible=!archive.visible;
 }
@@ -204,6 +285,8 @@ void loop(const double dt)
 	menu.y=msl::window_height/2.0;
 	active.y=msl::window_height/2.0-menu.display_height;
 	archive.y=msl::window_height/2.0-menu.display_height;
+
+	active.list_ui.width=archive.list_ui.width=menu.display_width-active.list_ui.padding*2;
 
 	if(active.visible)
 	{
