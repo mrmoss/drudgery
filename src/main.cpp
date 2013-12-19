@@ -63,10 +63,12 @@ class task_list_ui
 class menu_bar
 {
 	public:
-		menu_bar(const double x=0,const double y=0):x(x),y(y),display_width(0),display_height(0),
-			escape("Exit"),active_list_view("Active List"),archive_list_view("Archive List"),move_top("Move to Top")
+		menu_bar(const double x=0,const double y=0):x(x),y(y),display_width(0),display_height(0),loaded_active(false),
+			escape("Exit"),active_list_view("Active List"),archive_list_view("Archive List"),move_top("Move to Top"),
+			move_down("Move Down"),move_up("Move Up")
 		{
-			escape.padding=add_task.padding=archive_task.padding=active_list_view.padding=archive_list_view.padding=move_top.padding=10;
+			escape.padding=add_task.padding=archive_task.padding=active_list_view.padding=archive_list_view.padding=
+				move_top.padding=move_down.padding=move_up.padding=10;
 
 			add_task.width=archive_task.width=active_list_view.width=archive_list_view.width=move_top.width=96;
 
@@ -76,6 +78,8 @@ class menu_bar
 			h0.widgets.push_back(&active_list_view);
 			h0.widgets.push_back(&archive_list_view);
 			h0.widgets.push_back(&move_top);
+			h0.widgets.push_back(&move_down);
+			h0.widgets.push_back(&move_up);
 			h0.background_color_to.a=h0.background_color_from.a=h0.outline_color.a=0;
 
 			v0.widgets.push_back(&h0);
@@ -83,7 +87,7 @@ class menu_bar
 
 		void setup(task_list_ui& active,task_list_ui& archive)
 		{
-			active.list.load("active.bak");
+			loaded_active=active.list.load("active.bak");
 			archive.list.load("archive.bak");
 		}
 
@@ -109,8 +113,9 @@ class menu_bar
 			if(active.visible&&(int)active.list_ui.value>0&&!task_viewer.modify.value)
 				move_top.disabled=false;
 
-			v0.y=y-v0.display_height/2.0;
 			v0.loop(dt);
+
+			v0.y=y-v0.display_height/2.0;
 			display_width=v0.display_width;
 			display_height=v0.display_height;
 
@@ -144,6 +149,35 @@ class menu_bar
 
 			if(active.visible)
 			{
+				move_down.disabled=true;
+				move_up.disabled=true;
+
+				if((int)active.list_ui.value>0&&!task_viewer.modify.value)
+					move_up.disabled=false;
+
+				if((int)active.list_ui.value<(int)active.list.size()-1&&!task_viewer.modify.value)
+					move_down.disabled=false;
+
+				if(move_up.pressed&&active.list_ui.value-1>=0&&active.list.size()>1)
+				{
+					task temp=active.list[active.list_ui.value];
+					active.list[active.list_ui.value]=active.list[active.list_ui.value-1];
+					active.list[active.list_ui.value-1]=temp;
+					--active.list_ui.value;
+
+					save_active=true;
+				}
+
+				if(move_down.pressed&&active.list_ui.value+1<active.list.size()&&active.list.size()>1)
+				{
+					task temp=active.list[active.list_ui.value];
+					active.list[active.list_ui.value]=active.list[active.list_ui.value+1];
+					active.list[active.list_ui.value+1]=temp;
+					++active.list_ui.value;
+
+					save_active=true;
+				}
+
 				if((int)active.list_ui.value>=0)
 					archive_task.disabled=false;
 				else
@@ -152,6 +186,9 @@ class menu_bar
 				add_task.disabled=false;
 				add_task.value="Create Task";
 				archive_task.value="Archive Task";
+
+				if((int)active.list_ui.value>=0&&active.list[active.list_ui.value].time_working==0)
+					archive_task.value="Delete Task";
 
 				if(task_viewer.modify.value)
 				{
@@ -211,6 +248,9 @@ class menu_bar
 			}
 			else if(archive.visible)
 			{
+				move_down.disabled=true;
+				move_up.disabled=true;
+
 				if((int)archive.list_ui.value>=0)
 				{
 					add_task.disabled=false;
@@ -261,6 +301,7 @@ class menu_bar
 		double y;
 		double display_width;
 		double display_height;
+		bool loaded_active;
 
 		msl::button escape;
 		msl::button add_task;
@@ -268,6 +309,8 @@ class menu_bar
 		msl::button active_list_view;
 		msl::button archive_list_view;
 		msl::button move_top;
+		msl::button move_down;
+		msl::button move_up;
 		msl::hdock h0;
 		msl::vdock v0;
 };
@@ -280,7 +323,7 @@ task_ui task_viewer(0,0);
 
 int main()
 {
-	msl::start_2d("Drudgery",640,480,false);
+	msl::start_2d("Drudgery",744.562+9,480,false);
 	return 0;
 }
 
@@ -291,7 +334,7 @@ void setup()
 
 	menu.setup(active,archive);
 
-	if(active.list.size()==0)
+	if(!menu.loaded_active)
 		active.list.add(task(date(18,12,2013),"I need to add tasks to Drudgery.","My First Task",0,0));
 
 	archive.visible=false;
@@ -301,17 +344,20 @@ void setup()
 void loop(const double dt)
 {
 	menu.y=msl::window_height/2.0;
-	active.y=msl::window_height/2.0-menu.display_height;
-	archive.y=msl::window_height/2.0-menu.display_height;
+
+	task_viewer.y=msl::window_height/2.0-menu.display_height-task_viewer.display_height/2.0-1;
+
+	active.y=task_viewer.y-task_viewer.display_height/2.0-1;
+	archive.y=task_viewer.y-task_viewer.display_height/2.0-1;
 
 	active.list_ui.width=archive.list_ui.width=menu.display_width-active.list_ui.padding*2;
+
+	std::cout<<active.list_ui.width<<std::endl;
 
 	if(active.visible)
 	{
 		task_viewer.working_on.disabled=false;
 		task_viewer.modify.disabled=false;
-
-		task_viewer.y=msl::window_height/2.0-menu.display_height-active.display_height-task_viewer.display_height/2.0;
 	}
 	else if(archive.visible)
 	{
@@ -319,23 +365,21 @@ void loop(const double dt)
 		task_viewer.modify.value=false;
 		task_viewer.working_on.disabled=true;
 		task_viewer.modify.disabled=true;
-
-		task_viewer.y=msl::window_height/2.0-menu.display_height-archive.display_height-task_viewer.display_height/2.0;
 	}
-
-	menu.loop(dt,active,archive,task_viewer);
 
 	active.loop(dt);
 	archive.loop(dt);
 
+	menu.loop(dt,active,archive,task_viewer);
+
 	active.list_ui.disabled=task_viewer.modify.value;
 
-	if(active.visible&&(int)active.list_ui.value>=0)
+	if(active.visible&&(int)active.list_ui.value>=0&&active.list.size()>0)
 	{
 		task_viewer.disabled=false;
 		task_viewer.loop(dt,active.list[active.list_ui.value]);
 	}
-	else if(archive.visible&&(int)archive.list_ui.value>=0)
+	else if(archive.visible&&(int)archive.list_ui.value>=0&&archive.list.size()>0)
 	{
 		task_viewer.disabled=false;
 		task_viewer.loop(dt,archive.list[archive.list_ui.value]);
@@ -352,13 +396,16 @@ void draw()
 {
 	menu.draw();
 
+	active.list_ui.y=task_viewer.y-task_viewer.display_height/2.0-1-active.list_ui.display_height/2.0;
+	archive.list_ui.y=task_viewer.y-task_viewer.display_height/2.0-1-archive.list_ui.display_height/2.0;
+
 	unsigned int old_index=active.list_ui.value;
-	active.draw();
+	if(active.list.size()>0)
+		active.draw();
 	unsigned int new_index=active.list_ui.value;
 
-	archive.draw();
-
-	msl::draw_rectangle(task_viewer.x,task_viewer.y,task_viewer.display_width,task_viewer.display_height,true,msl::color(1,0.7,0.7,1));
+	if(archive.list.size()>0)
+		archive.draw();
 
 	if(old_index!=new_index&&(int)old_index>=0)
 		task_viewer.working_on.value=active.list[active.list_ui.value].working_on;
