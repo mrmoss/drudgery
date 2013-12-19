@@ -57,24 +57,55 @@ class menu_bar
 {
 	public:
 		menu_bar(const double x=0,const double y=0):x(x),y(y),display_width(0),display_height(0),
-			escape("Exit"),add_task("Add Task")
+			escape("Exit"),add_task("Add Task"),active_list_view("Active List"),archive_list_view("Archive List")
 		{
-			escape.padding=add_task.padding=archive_task.padding=10;
+			escape.padding=add_task.padding=archive_task.padding=active_list_view.padding=archive_list_view.padding=10;
+
+			archive_task.width=active_list_view.width=archive_list_view.width=96;
 
 			h0.widgets.push_back(&escape);
 			h0.widgets.push_back(&add_task);
 			h0.widgets.push_back(&archive_task);
+			h0.widgets.push_back(&active_list_view);
+			h0.widgets.push_back(&archive_list_view);
 			h0.background_color_to.a=h0.background_color_from.a=h0.outline_color.a=0;
 
 			v0.widgets.push_back(&h0);
 		}
 
-		void loop(const double dt,task_list_ui& active,task_list_ui& archive)
+		void loop(const double dt,task_list_ui& active,task_list_ui& archive,task_ui& task_viewer)
 		{
+			//bool save=false;
+
 			v0.y=y-v0.display_height/2.0;
 			v0.loop(dt);
 			display_width=v0.display_width;
 			display_height=v0.display_height;
+
+			if(active_list_view.pressed)
+			{
+				active.visible=true;
+				archive.visible=false;
+
+				if((int)active.list_ui.value>=0)
+					task_viewer.working_on.value=active.list[active.list_ui.value].working_on;
+				else
+					task_viewer.working_on.value=false;
+			}
+
+			if(archive_list_view.pressed)
+			{
+				active.visible=false;
+				archive.visible=true;
+			}
+
+			if(active.visible)
+				active_list_view.down=true;
+
+			if(archive.visible)
+				archive_list_view.down=true;
+
+			archive_list_view.disabled=task_viewer.modify.value;
 
 			if(escape.pressed)
 				exit(0);
@@ -94,9 +125,14 @@ class menu_bar
 					task new_task(date(18,12,2013),"","New Task",0,0);
 
 					if((int)active.list_ui.value>=0)
+					{
 						active.list.insert(new_task,active.list_ui.value);
+						task_viewer.working_on.value=false;
+					}
 					else
+					{
 						active.list.add(new_task);
+					}
 				}
 
 				if(archive_task.pressed&&(int)active.list_ui.value>=0)
@@ -135,6 +171,8 @@ class menu_bar
 		msl::button escape;
 		msl::button add_task;
 		msl::button archive_task;
+		msl::button active_list_view;
+		msl::button archive_list_view;
 		msl::hdock h0;
 		msl::vdock v0;
 };
@@ -167,12 +205,6 @@ void loop(const double dt)
 	active.y=msl::window_height/2.0-menu.display_height;
 	archive.y=msl::window_height/2.0-menu.display_height;
 
-	if(msl::input_check_pressed(kb_f1))
-	{
-		archive.visible=!archive.visible;
-		active.visible=!archive.visible;
-	}
-
 	if(active.visible)
 	{
 		task_viewer.working_on.disabled=false;
@@ -190,7 +222,7 @@ void loop(const double dt)
 		task_viewer.y=msl::window_height/2.0-menu.display_height-archive.display_height-task_viewer.display_height/2.0;
 	}
 
-	menu.loop(dt,active,archive);
+	menu.loop(dt,active,archive,task_viewer);
 
 	active.loop(dt);
 	archive.loop(dt);
