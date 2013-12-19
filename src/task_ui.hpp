@@ -19,6 +19,8 @@ class task_ui
 		double display_width;
 		double display_height;
 
+		bool disabled;
+
 		msl::textbox name;
 		msl::textbox info;
 		msl::textbox due_day;

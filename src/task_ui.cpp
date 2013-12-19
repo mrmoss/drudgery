@@ -2,7 +2,8 @@
 
 #include "msl/string_util.hpp"
 
-task_ui::task_ui(const double x,const double y):x(x),y(y),display_width(0),display_height(0),modify(false,x,y),padding_(4)
+task_ui::task_ui(const double x,const double y):x(x),y(y),display_width(0),display_height(0),disabled(false),
+	modify(false,x,y),padding_(4)
 {
 	//Setup Name
 	name.width=320-padding_*2;
@@ -122,6 +123,16 @@ task_ui::task_ui(const double x,const double y):x(x),y(y),display_width(0),displ
 
 void task_ui::loop(const double dt,task& my_task)
 {
+	name.disabled=disabled;
+	info.disabled=disabled;
+	due_day.disabled=disabled;
+	due_month.disabled=disabled;
+	due_year.disabled=disabled;
+	time_estimate.disabled=disabled;
+	time_working.disabled=disabled;
+	modify.disabled=disabled;
+	working_on.disabled=disabled;
+
 	if(!modify.value)
 	{
 		due_day.value=msl::to_string(my_task.due_date.day);
@@ -145,7 +156,7 @@ void task_ui::loop(const double dt,task& my_task)
 		time_working.value=msl::to_string(my_task.time_working);
 		time_working.disabled=true;
 	}
-	else
+	else if(!disabled)
 	{
 		my_task.due_date.day=msl::to_int(due_day.value);
 		due_day.disabled=false;
@@ -168,20 +179,30 @@ void task_ui::loop(const double dt,task& my_task)
 		my_task.time_working=msl::to_int(time_working.value);
 		time_working.disabled=false;
 	}
+	else
+	{
+		due_day.value="";
+		due_month.value="";
+		due_year.value="";
+		info.value="";
+		name.value="";
+		time_estimate.value="";
+		time_working.value="";
+	}
 
 	my_task.working_on=(working_on.value&&!modify.value);
 
 	v0.x=x;
 	v0.y=y;
 
-	//Loop GUI
-	v0.loop(dt);
-
 	display_width=v0.display_width;
 	display_height=v0.display_height;
 
+	//Loop GUI
+	v0.loop(dt);
+
 	//Restrict Number Entries to Numbers
-	if((modify.value&&due_day.value.size()>1)||!modify.value)
+	if(!disabled&&((modify.value&&due_day.value.size()>1)||!modify.value))
 	{
 		due_day.value=msl::to_string(msl::to_int(due_day.value));
 
@@ -198,7 +219,7 @@ void task_ui::loop(const double dt,task& my_task)
 		}
 	}
 
-	if((modify.value&&due_month.value.size()>1)||!modify.value)
+	if(!disabled&&((modify.value&&due_month.value.size()>1)||!modify.value))
 	{
 		due_month.value=msl::to_string(msl::to_int(due_month.value));
 
@@ -215,7 +236,7 @@ void task_ui::loop(const double dt,task& my_task)
 		}
 	}
 
-	if((modify.value&&due_year.value.size()>3)||!modify.value)
+	if(!disabled&&((modify.value&&due_year.value.size()>3)||!modify.value))
 	{
 		due_year.value=msl::to_string(msl::to_int(due_year.value));
 
@@ -226,11 +247,20 @@ void task_ui::loop(const double dt,task& my_task)
 		}
 	}
 
-	if((modify.value&&time_estimate.value.size()>0)||!modify.value)
+	if(!disabled&&((modify.value&&time_estimate.value.size()>0)||!modify.value))
 		time_estimate.value=msl::to_string(msl::to_int(time_estimate.value));
 
-	if((modify.value&&time_working.value.size()>0)||!modify.value)
+	if(!disabled&&((modify.value&&time_working.value.size()>0)||!modify.value))
 		time_working.value=msl::to_string(msl::to_int(time_working.value));
+
+	if(disabled)
+	{
+		time_estimate.value="";
+		time_working.value="";
+		due_day.value="";
+		due_month.value="";
+		due_year.value="";
+	}
 }
 
 void task_ui::draw()

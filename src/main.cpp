@@ -313,10 +313,21 @@ void loop(const double dt)
 	active.list_ui.disabled=task_viewer.modify.value;
 
 	if(active.visible&&(int)active.list_ui.value>=0)
+	{
+		task_viewer.disabled=false;
 		task_viewer.loop(dt,active.list[active.list_ui.value]);
-
-	if(archive.visible&&(int)archive.list_ui.value>=0)
+	}
+	else if(archive.visible&&(int)archive.list_ui.value>=0)
+	{
+		task_viewer.disabled=false;
 		task_viewer.loop(dt,archive.list[archive.list_ui.value]);
+	}
+	else
+	{
+		task temp(date(0,0,0),"","",0,0);
+		task_viewer.disabled=true;
+		task_viewer.loop(dt,temp);
+	}
 }
 
 void draw()
@@ -329,16 +340,11 @@ void draw()
 
 	archive.draw();
 
-	if(active.visible&&(int)active.list_ui.value>=0)
-	{
-		if(old_index!=new_index&&(int)old_index>=0)
-			task_viewer.working_on.value=active.list[active.list_ui.value].working_on;
+	msl::draw_rectangle(task_viewer.x,task_viewer.y,task_viewer.display_width,task_viewer.display_height,true,msl::color(1,0.7,0.7,1));
 
-		task_viewer.draw();
-	}
+	if(old_index!=new_index&&(int)old_index>=0)
+		task_viewer.working_on.value=active.list[active.list_ui.value].working_on;
 
-	if(archive.visible&&(int)archive.list_ui.value>=0)
-	{
-		task_viewer.draw();
-	}
+	task_viewer.draw();
+	task_viewer.draw();
 }
