@@ -6,7 +6,7 @@ MSL_DY=src/msl/2d.cpp src/msl/2d_util.cpp src/msl/file_util.cpp src/msl/glut_inp
 SRCS_DY=src/date.cpp src/task.cpp src/task_list.cpp src/main.cpp src/menu_bar.cpp src/task_ui.cpp src/task_list_ui.cpp $(MSL_DY)
 LIBS_DY= -lGL -lGLU -lglut -lGLEW -lSOIL -lftgl
 
-OPTS=-O -Wall
+OPTS=-O -Wall -I /usr/include/freetype2/
 COMPILER=g++
 OUT=bin
 
